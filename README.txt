@@ -1,2 +1,2 @@
-Accesso Libero v0.3
-Apri index.html per una prova locale. Per installarla come PWA va pubblicata online tramite hosting statico HTTPS.
+Accesso Libero v0.5
+Novità: nuova grafica, sezione Mappa, stato online/offline, suggerimento installazione, toast preferiti, copertine grafiche, filtri in tempo reale e cache aggiornata.
