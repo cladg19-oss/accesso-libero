@@ -105,7 +105,7 @@ nav button.active{color:var(--brand);font-weight:750}
     <button class="btn primary" onclick="render()">Cerca</button>
   </div>
   <div class="quick">
-    <button onclick="nearMe()">📍 <strong>Vicino a me</strong><span class="small">Ordina i luoghi per distanza</span></button>
+    <button onclick="nearMe()">📍 <strong>Vicino a me</strong><span class="small">Cerca luoghi entro 25 km</span></button>
     <button onclick="showTab('rights')">✅ <strong>Cosa mi spetta</strong><span class="small">Regole adatte al tuo profilo</span></button>
   </div>
   <div class="filters">
@@ -188,37 +188,75 @@ function getList(){
   if(pos)list.sort((a,b)=>dist(pos.lat,pos.lon,a.lat,a.lon)-dist(pos.lat,pos.lon,b.lat,b.lon));
   return list;
 }
+
+async function searchAroundCoordinates(lat,lon,radius,label){
+  const query=`[out:json][timeout:35];
+  (
+    nwr["tourism"="museum"](around:${radius},${lat},${lon});
+    nwr["tourism"="gallery"](around:${radius},${lat},${lon});
+    nwr["tourism"="attraction"](around:${radius},${lat},${lon});
+    nwr["tourism"="viewpoint"](around:${radius},${lat},${lon});
+    nwr["historic"](around:${radius},${lat},${lon});
+    nwr["heritage"](around:${radius},${lat},${lon});
+    nwr["leisure"="park"]["name"](around:${radius},${lat},${lon});
+    nwr["leisure"="nature_reserve"]["name"](around:${radius},${lat},${lon});
+    nwr["natural"="peak"]["name"](around:${radius},${lat},${lon});
+    nwr["natural"="waterfall"]["name"](around:${radius},${lat},${lon});
+    nwr["amenity"="place_of_worship"]["name"]["historic"](around:${radius},${lat},${lon});
+    nwr["amenity"="place_of_worship"]["name"]["heritage"](around:${radius},${lat},${lon});
+    nwr["building"="castle"]["name"](around:${radius},${lat},${lon});
+    nwr["building"="palace"]["name"](around:${radius},${lat},${lon});
+    nwr["man_made"="tower"]["name"](around:${radius},${lat},${lon});
+  );
+  out center 120;`;
+  const over=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:query});
+  const data=await over.json();
+  const seen=new Set();
+  const out=data.elements.map((e)=>{
+    const t=e.tags||{},name=t.name||t['name:it'];
+    if(!name||seen.has(name))return null;
+    const la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);
+    if(!la||!lo)return null;
+    seen.add(name);
+    let type='Luogo da visitare';
+    if(t.tourism==='museum') type='Museo';
+    else if(t.tourism==='gallery') type='Galleria';
+    else if(t.tourism==='viewpoint') type='Punto panoramico';
+    else if(t.leisure==='park') type='Parco';
+    else if(t.leisure==='nature_reserve') type='Riserva naturale';
+    else if(t.natural==='peak') type='Monte / punto panoramico';
+    else if(t.natural==='waterfall') type='Cascata';
+    else if(t.amenity==='place_of_worship') type='Chiesa o santuario storico';
+    else if(t.building==='castle'||t.historic==='castle') type='Castello';
+    else if(t.building==='palace'||t.historic==='palace'||t.historic==='manor') type='Villa o palazzo storico';
+    else if(t.historic) type='Luogo storico';
+    const city=t['addr:city']||t['addr:town']||t['addr:village']||label||'Vicino a te';
+    return {
+      name,city,
+      region:t['addr:state']||'Italia',
+      type,
+      status:'Da verificare',
+      note:'Luogo trovato online vicino alla località cercata. Verifica sul sito ufficiale gratuità, prenotazione e accessibilità.',
+      document:'Disability Card posseduta',
+      lat:la,lon:lo,
+      site:t.website||t['contact:website']||`https://www.google.com/search?q=${encodeURIComponent(name+' '+city+' sito ufficiale')}`,
+      online:true
+    };
+  }).filter(Boolean);
+  out.sort((a,b)=>dist(lat,lon,a.lat,a.lon)-dist(lat,lon,b.lat,b.lon));
+  return out.slice(0,60);
+}
+
 async function searchItalyOnline(term){
   const box=byId('onlineSearchBox');
   box.classList.remove('hidden');
-  box.innerHTML='🔎 Sto cercando musei e luoghi culturali online…';
+  box.innerHTML='🔎 Sto cercando musei, ville, castelli, parchi e luoghi culturali online…';
   try{
     const geo=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=${encodeURIComponent(term)}`,{headers:{'Accept-Language':'it'}});
     const g=await geo.json();
     if(!g.length){box.innerHTML='Non ho trovato questa località in Italia.';return []}
     const lat=Number(g[0].lat),lon=Number(g[0].lon);
-    const query=`[out:json][timeout:25];(nwr["tourism"="museum"](around:12000,${lat},${lon});nwr["historic"](around:12000,${lat},${lon});nwr["tourism"="attraction"](around:12000,${lat},${lon}););out center 40;`;
-    const over=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:query});
-    const data=await over.json();
-    const seen=new Set();
-    return data.elements.map((e,i)=>{
-      const t=e.tags||{},name=t.name||t['name:it'];
-      if(!name||seen.has(name))return null;seen.add(name);
-      const la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);
-      if(!la||!lo)return null;
-      return {
-        name,
-        city:t['addr:city']||term,
-        region:t['addr:state']||'Italia',
-        type:t.tourism==='museum'?'Museo / luogo culturale':'Luogo culturale',
-        status:'Da verificare',
-        note:'Risultato trovato online. Verifica sul sito ufficiale gratuità, prenotazione e accessibilità.',
-        document:'Disability Card posseduta',
-        lat:la,lon:lo,
-        site:t.website||t['contact:website']||`https://www.google.com/search?q=${encodeURIComponent(name+' sito ufficiale')}`,
-        online:true
-      };
-    }).filter(Boolean).slice(0,30);
+    return await searchAroundCoordinates(lat,lon,25000,term);
   }catch(e){
     box.innerHTML='La ricerca online non è disponibile in questo momento. Riprova tra poco.';
     return [];
@@ -269,7 +307,7 @@ async function render(){
     onlineResults=await searchItalyOnline(term);
     byId('resultCount').textContent=`${onlineResults.length} risultati online`;
     if(onlineResults.length){
-      byId('onlineSearchBox').innerHTML='ℹ️ Questi risultati provengono da OpenStreetMap. Le agevolazioni sono indicate come “Da verificare”: usa il sito ufficiale prima della visita.';
+      byId('onlineSearchBox').innerHTML='ℹ️ Questi risultati provengono da OpenStreetMap e includono musei, castelli, ville, parchi, luoghi storici e punti panoramici. Le agevolazioni sono indicate come “Da verificare”.';
       results.innerHTML=onlineResults.map((p,i)=>item(p,1000+i)).join('');
     }else{
       results.innerHTML='<div class="empty">Nessun luogo trovato.</div>';
@@ -282,12 +320,35 @@ async function render(){
 function renderMap(){
   mapResults.innerHTML=PLACES.map(p=>`<div class="map-card"><div class="map-row"><div><h3>${p.name}</h3><div class="small">${p.city}, ${p.region}</div></div><a href="${appleMaps(p)}" target="_blank">Apri</a></div></div>`).join('');
 }
-function nearMe(){
+async function nearMe(){
   if(!navigator.geolocation){alert('Geolocalizzazione non disponibile.');return;}
-  navigator.geolocation.getCurrentPosition(x=>{
+  const box=byId('onlineSearchBox');
+  box.classList.remove('hidden');
+  box.innerHTML='📍 Sto cercando luoghi interessanti entro 25 km dalla tua posizione…';
+  navigator.geolocation.getCurrentPosition(async x=>{
     pos={lat:x.coords.latitude,lon:x.coords.longitude};
-    render();toast('Luoghi ordinati per distanza');
-  },()=>alert('Consenti la posizione nelle impostazioni di Safari.'));
+    try{
+      const live=await searchAroundCoordinates(pos.lat,pos.lon,25000,'Vicino a te');
+      const local=PLACES.filter(p=>dist(pos.lat,pos.lon,p.lat,p.lon)<=25);
+      const merged=[...local,...live].filter((p,i,a)=>a.findIndex(x=>x.name===p.name)===i);
+      merged.sort((a,b)=>dist(pos.lat,pos.lon,a.lat,a.lon)-dist(pos.lat,pos.lon,b.lat,b.lon));
+      onlineResults=merged;
+      q.value='';
+      region.value='';
+      type.value='';
+      byId('resultCount').textContent=`${merged.length} luoghi entro 25 km`;
+      box.innerHTML=merged.length
+        ?'📍 Risultati ordinati dal più vicino. I luoghi trovati online sono indicati come “Da verificare”.'
+        :'Non ho trovato luoghi classificati nelle vicinanze.';
+      results.innerHTML=merged.length?merged.map((p,i)=>item(p,2000+i)).join(''):'<div class="empty">Nessun luogo trovato entro 25 km.</div>';
+      toast('Ricerca vicino a te completata');
+    }catch(e){
+      box.innerHTML='Non riesco a cercare i luoghi vicini in questo momento. Riprova tra poco.';
+    }
+  },err=>{
+    box.innerHTML='Per usare “Vicino a me”, consenti la posizione a Safari nelle impostazioni.';
+    alert('Consenti la posizione nelle impostazioni di Safari.');
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:300000});
 }
 function toggleFav(name){
   favs=favs.includes(name)?favs.filter(x=>x!==name):[...favs,name];
