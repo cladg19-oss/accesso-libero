@@ -1,2 +1,2 @@
-Accesso Libero v0.5
-Novità: nuova grafica, sezione Mappa, stato online/offline, suggerimento installazione, toast preferiti, copertine grafiche, filtri in tempo reale e cache aggiornata.
+Accesso Libero v0.6
+Novità: ricerca online in tutta Italia tramite OpenStreetMap, tutte le regioni nel filtro, testi e icone più grandi, Disability Card aggiornata come posseduta, risultati online marcati da verificare.
