@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#145c55">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Accesso Libero</title>
+<style>
+:root{--brand:#145c55;--brand2:#dff1ee;--ink:#17312d;--muted:#687b77;--bg:#f6f8f7;--card:#fff;--line:#dce5e2;--ok:#0a7b4f;--warn:#a16b00}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:90px}
+.hero{padding:22px 18px 18px;background:linear-gradient(135deg,#145c55,#0e403b);color:#fff;border-radius:0 0 28px 28px}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:52px;height:52px;border-radius:16px;background:#fff;color:var(--brand);display:grid;place-items:center;font-size:29px}
+h1{margin:0;font-size:26px}.subtitle{margin:4px 0 0;opacity:.88}
+.profile{margin-top:16px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.13);font-size:14px;line-height:1.35}
+main{padding:16px}.search{display:flex;gap:8px}.search input{flex:1;padding:14px 15px;border:1px solid var(--line);border-radius:15px;font-size:16px;background:white}
+button,.btn{border:0;border-radius:14px;padding:12px 14px;font-weight:700;font-size:15px}
+.primary{background:var(--brand);color:white}.soft{background:var(--brand2);color:var(--brand)}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.quick button{text-align:left;background:white;border:1px solid var(--line);padding:15px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.filters select{padding:13px;border:1px solid var(--line);border-radius:14px;background:white;font-size:15px}
+h2{font-size:19px;margin:22px 0 10px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:0 4px 15px rgba(20,92,85,.05)}
+.top{display:flex;justify-content:space-between;gap:10px}.card h3{margin:0;font-size:18px}.meta{font-size:14px;color:var(--muted);margin:5px 0 9px}.badge{font-size:12px;padding:5px 9px;border-radius:999px;height:max-content;white-space:nowrap;background:var(--brand2);color:var(--brand)}
+.badge.warn{background:#fff4d8;color:var(--warn)}.text{font-size:14px;line-height:1.45}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions a,.actions button{background:#eef3f2;color:var(--ink);text-decoration:none;padding:10px 12px;border-radius:12px;font-weight:650}
+.notice{padding:13px;border-radius:14px;background:#fff8df;border:1px solid #eadb9b;font-size:13px;line-height:1.45}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+section.hidden{display:none}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .wrap{max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav button{background:white;color:var(--muted);font-size:12px;padding:10px 2px}nav button.active{color:var(--brand)}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="hero">
+<div class="brand"><div class="logo">♿</div><div><h1>Accesso Libero</h1><p class="subtitle">Trova luoghi e agevolazioni adatte a te</p></div></div>
+<div class="profile"><b>Profilo:</b> invalidità 100% · senza accompagnamento · Lombardia</div>
+</header>
+
+<main>
+<section id="home">
+<div class="search"><input id="q" placeholder="Cerca museo, città o regione"><button class="primary" onclick="render()">Cerca</button></div>
+<div class="quick">
+<button onclick="nearMe()">📍 <b>Vicino a me</b><br><span class="small">Ordina per distanza</span></button>
+<button onclick="showTab('rights')">✅ <b>Cosa mi spetta</b><br><span class="small">Regole del tuo profilo</span></button>
+</div>
+<div class="filters">
+<select id="region" onchange="render()"><option value="">Tutte le regioni</option></select>
+<select id="type" onchange="render()"><option value="">Tutte le categorie</option></select>
+</div>
+<h2>Luoghi</h2>
+<div id="results"></div>
+</section>
+
+<section id="rights" class="hidden">
+<h2>I miei diritti</h2>
+<div class="card"><h3>🏛️ Luoghi statali</h3><p class="text">Le persone con disabilità possono accedere gratuitamente ai luoghi della cultura statali. Porta la Disability Card o altra documentazione idonea.</p></div>
+<div class="card"><h3>🏙️ Musei civici di Milano</h3><p class="text">L’ingresso è gratuito per le persone con disabilità. Le modalità pratiche possono variare per prenotazioni, mostre temporanee e biglietterie.</p></div>
+<div class="card"><h3>🚆 Treni nazionali</h3><p class="text">L’invalidità al 100% senza accompagnamento non dà automaticamente diritto al viaggio gratuito sui treni nazionali. Puoi comunque usare l’assistenza gratuita in stazione e verificare agevolazioni regionali.</p></div>
+<div class="notice">Prima della visita apri sempre il sito ufficiale del luogo: prezzi, prenotazioni e regole possono cambiare.</div>
+</section>
+
+<section id="saved" class="hidden">
+<h2>Preferiti</h2><div id="savedResults"></div>
+</section>
+
+<section id="profile" class="hidden">
+<h2>Il mio profilo</h2>
+<div class="card"><h3>Claudio</h3><p class="text"><b>Invalidità:</b> 100%<br><b>Accompagnamento:</b> no<br><b>Regione:</b> Lombardia<br><b>Disability Card:</b> in richiesta</p></div>
+<div class="notice">In questa versione i dati restano solo sul dispositivo. Non vengono caricati online.</div>
+</section>
+</main>
+
+<nav><div class="wrap">
+<button id="tab-home" class="active" onclick="showTab('home')">🏛️<br>Luoghi</button>
+<button id="tab-rights" onclick="showTab('rights')">✅<br>Diritti</button>
+<button id="tab-saved" onclick="showTab('saved')">❤️<br>Preferiti</button>
+<button id="tab-profile" onclick="showTab('profile')">👤<br>Profilo</button>
+</div></nav>
+</div>
+
+<script src="places.js"></script>
+<script>
+let pos=null;let favs=JSON.parse(localStorage.getItem('favs')||'[]');
+const byId=id=>document.getElementById(id);
+function dist(a,b,c,d){const R=6371,r=x=>x*Math.PI/180;const x=r(c-a),y=r(d-b);const h=Math.sin(x/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(y/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function fill(){[...new Set(PLACES.map(x=>x.region))].sort().forEach(x=>region.innerHTML+=`<option>${x}</option>`);[...new Set(PLACES.map(x=>x.type))].sort().forEach(x=>type.innerHTML+=`<option>${x}</option>`)}
+function item(p){const d=pos?` · ${dist(pos.lat,pos.lon,p.lat,p.lon).toFixed(1)} km`:'';const saved=favs.includes(p.name);return `<div class="card"><div class="top"><div><h3>${p.name}</h3><div class="meta">${p.city}, ${p.region}${d}</div></div><span class="badge ${p.status==='Da verificare'?'warn':''}">${p.status}</span></div><div class="text"><b>${p.type}</b><br>${p.note}<br><span class="small">Documento: ${p.document}</span></div><div class="actions"><a href="${p.site}" target="_blank">Sito ufficiale</a><a href="${p.maps}" target="_blank">Indicazioni</a><button onclick="toggleFav('${p.name.replaceAll("'","\'")}')">${saved?'❤️':'🤍'}</button></div></div>`}
+function render(){const t=q.value.toLowerCase().trim(),r=region.value,c=type.value;let list=PLACES.filter(p=>(!t||[p.name,p.city,p.region,p.type].join(' ').toLowerCase().includes(t))&&(!r||p.region===r)&&(!c||p.type===c));if(pos)list.sort((a,b)=>dist(pos.lat,pos.lon,a.lat,a.lon)-dist(pos.lat,pos.lon,b.lat,b.lon));results.innerHTML=list.length?list.map(item).join(''):'<div class="empty">Nessun luogo trovato.</div>'}
+function nearMe(){navigator.geolocation?navigator.geolocation.getCurrentPosition(x=>{pos={lat:x.coords.latitude,lon:x.coords.longitude};render()},()=>alert('Consenti la posizione a Safari nelle impostazioni.')):alert('Geolocalizzazione non disponibile.')}
+function toggleFav(name){favs=favs.includes(name)?favs.filter(x=>x!==name):[...favs,name];localStorage.setItem('favs',JSON.stringify(favs));render();renderSaved()}
+function renderSaved(){const list=PLACES.filter(p=>favs.includes(p.name));savedResults.innerHTML=list.length?list.map(item).join(''):'<div class="empty">Non hai ancora salvato luoghi.</div>'}
+function showTab(id){['home','rights','saved','profile'].forEach(x=>byId(x).classList.toggle('hidden',x!==id));['home','rights','saved','profile'].forEach(x=>byId('tab-'+x).classList.toggle('active',x===id));if(id==='saved')renderSaved()}
+fill();render();renderSaved();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>

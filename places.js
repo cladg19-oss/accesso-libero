@@ -1,0 +1,93 @@
+const PLACES=[
+  {
+    "name": "Pinacoteca di Brera",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Museo statale",
+    "status": "Gratis",
+    "note": "Ingresso gratuito per persone con disabilità. Verifica eventuale prenotazione.",
+    "document": "Disability Card o documentazione equivalente",
+    "lat": 45.472,
+    "lon": 9.1881,
+    "site": "https://pinacotecabrera.org/",
+    "maps": "https://maps.apple.com/?q=Pinacoteca%20di%20Brera"
+  },
+  {
+    "name": "Cenacolo Vinciano",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Museo statale",
+    "status": "Gratis",
+    "note": "Ingresso gratuito; prenotazione sempre obbligatoria.",
+    "document": "Disability Card o documentazione equivalente",
+    "lat": 45.4659,
+    "lon": 9.1706,
+    "site": "https://cenacolovinciano.org/",
+    "maps": "https://maps.apple.com/?q=Cenacolo%20Vinciano"
+  },
+  {
+    "name": "Museo del Novecento",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Museo civico",
+    "status": "Gratis",
+    "note": "I musei civici di Milano prevedono ingresso gratuito per persone con disabilità.",
+    "document": "Disability Card consigliata",
+    "lat": 45.4637,
+    "lon": 9.1901,
+    "site": "https://www.museodelnovecento.org/",
+    "maps": "https://maps.apple.com/?q=Museo%20del%20Novecento%20Milano"
+  },
+  {
+    "name": "Museo di Storia Naturale",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Museo civico",
+    "status": "Gratis",
+    "note": "Ingresso gratuito per persone con disabilità.",
+    "document": "Disability Card consigliata",
+    "lat": 45.4721,
+    "lon": 9.2023,
+    "site": "https://www2.comune.milano.it/web/museo-di-storia-naturale",
+    "maps": "https://maps.apple.com/?q=Museo%20di%20Storia%20Naturale%20Milano"
+  },
+  {
+    "name": "Castello Sforzesco – Musei",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Museo civico",
+    "status": "Gratis",
+    "note": "I musei civici di Milano prevedono ingresso gratuito per persone con disabilità.",
+    "document": "Disability Card consigliata",
+    "lat": 45.4705,
+    "lon": 9.1793,
+    "site": "https://www.milanocastello.it/",
+    "maps": "https://maps.apple.com/?q=Castello%20Sforzesco"
+  },
+  {
+    "name": "Duomo di Milano",
+    "city": "Milano",
+    "region": "Lombardia",
+    "type": "Luogo di culto",
+    "status": "Da verificare",
+    "note": "L’accesso per la preghiera è libero; visite turistiche, terrazze e museo hanno regole proprie.",
+    "document": "Controlla la tariffa ufficiale",
+    "lat": 45.4642,
+    "lon": 9.1916,
+    "site": "https://www.duomomilano.it/",
+    "maps": "https://maps.apple.com/?q=Duomo%20di%20Milano"
+  },
+  {
+    "name": "Reggia di Caserta",
+    "city": "Caserta",
+    "region": "Campania",
+    "type": "Museo statale",
+    "status": "Gratis",
+    "note": "Gratuità prevista per persone con disabilità.",
+    "document": "Disability Card e/o documentazione prevista",
+    "lat": 41.0732,
+    "lon": 14.3272,
+    "site": "https://reggiadicaserta.cultura.gov.it/",
+    "maps": "https://maps.apple.com/?q=Reggia%20di%20Caserta"
+  }
+];
