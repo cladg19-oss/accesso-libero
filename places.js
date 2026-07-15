@@ -103,4 +103,4 @@ const PLACES=[
     "site": "https://www.orridobellano.eu/it/orari-e-biglietti/",
     "maps": "https://maps.apple.com/?q=Orrido%20di%20Bellano"
   }
-];
+]; 
