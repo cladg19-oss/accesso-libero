@@ -1,2 +1,2 @@
-Accesso Libero v0.7
-Novità: il pulsante Vicino a me effettua una ricerca online dal vivo entro 25 km; include musei, castelli, ville e palazzi storici, chiese e santuari storici, parchi, riserve naturali, punti panoramici e altri luoghi da visitare. I risultati sono ordinati per distanza.
+Accesso Libero v0.8
+Aggiunto Orrido di Bellano: ingresso gratuito con Disability Card e un accompagnatore; segnalate scale, passaggi stretti e mancata accessibilità con carrozzina.

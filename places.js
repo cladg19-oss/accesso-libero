@@ -89,5 +89,18 @@ const PLACES=[
     "lon": 14.3272,
     "site": "https://reggiadicaserta.cultura.gov.it/",
     "maps": "https://maps.apple.com/?q=Reggia%20di%20Caserta"
+  },
+  {
+    "name": "Orrido di Bellano",
+    "city": "Bellano",
+    "region": "Lombardia",
+    "type": "Cascata e gola naturale",
+    "status": "Gratis",
+    "note": "Ingresso gratuito per i possessori di Disability Card e per un accompagnatore. Il percorso presenta scale e passaggi stretti e non è accessibile con carrozzine.",
+    "document": "Disability Card",
+    "lat": 46.0432,
+    "lon": 9.3021,
+    "site": "https://www.orridobellano.eu/it/orari-e-biglietti/",
+    "maps": "https://maps.apple.com/?q=Orrido%20di%20Bellano"
   }
 ];
