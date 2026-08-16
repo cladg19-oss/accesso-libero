@@ -39,6 +39,7 @@ main{padding:16px}
 .quick button{border:1px solid var(--line);background:white;padding:15px;border-radius:17px;text-align:left;box-shadow:var(--shadow)}
 .quick strong{display:block;font-size:18px;margin-bottom:4px}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.filters.three{grid-template-columns:1fr 1fr 1fr}
 .filters select{width:100%;padding:13px;border:1px solid var(--line);border-radius:15px;background:white}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin:23px 0 11px}
 .section-head h2{margin:0;font-size:25px}
@@ -78,6 +79,7 @@ nav{position:fixed;left:0;right:0;bottom:0;background:white;border-top:1px solid
 nav .wrap{max-width:780px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr)}
 nav button{border:0;background:white;color:var(--muted);font-size:13px;padding:13px 3px}
 nav button.active{color:var(--brand);font-weight:750}
+@media(max-width:620px){.filters.three{grid-template-columns:1fr 1fr}.filters.three select:last-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -85,9 +87,9 @@ nav button.active{color:var(--brand);font-weight:750}
 <header class="hero">
   <div class="brand">
     <div class="logo">♿</div>
-    <div><h1>Accesso Libero</h1><p class="subtitle">Musei e agevolazioni, in modo semplice</p></div>
+    <div><h1>Accesso Libero</h1><p class="subtitle">Gite accessibili e agevolazioni in Lombardia</p></div>
   </div>
-  <div class="profile"><b>Profilo attivo:</b> invalidità 100% · senza accompagnamento · Lombardia</div>
+  <div class="profile"><b>Profilo attivo:</b> Disability Card · Lombardia · luoghi ordinati per distanza</div>
   <div class="statusbar">
     <span class="pill" id="onlinePill">● Online</span>
     <span class="pill">❤️ Preferiti locali</span>
@@ -101,18 +103,25 @@ nav button.active{color:var(--brand);font-weight:750}
     Per installarla: tocca <b>Condividi</b> in Safari e poi <b>Aggiungi alla schermata Home</b>.
   </div>
   <div class="search">
-    <input id="q" placeholder="Cerca museo, città o regione" oninput="render()">
+    <input id="q" placeholder="Cerca luogo, comune o provincia" oninput="render()">
     <button class="btn primary" onclick="render()">Cerca</button>
   </div>
   <div class="quick">
-    <button onclick="nearMe()">📍 <strong>Vicino a me</strong><span class="small">Cerca luoghi entro 25 km</span></button>
+    <button onclick="nearMe()">📍 <strong>Vicino a me</strong><span class="small">Scegli il raggio e scopri cosa c’è vicino</span></button>
     <button onclick="showTab('rights')">✅ <strong>Cosa mi spetta</strong><span class="small">Regole adatte al tuo profilo</span></button>
   </div>
-  <div class="filters">
-    <select id="region" onchange="q.value=this.value;render()"><option value="">Tutte le regioni</option></select>
+  <div class="filters three">
+    <select id="province" onchange="render()"><option value="">Tutte le province</option></select>
     <select id="type" onchange="render()"><option value="">Tutte le categorie</option></select>
+    <select id="radius" aria-label="Raggio vicino a me">
+      <option value="10">Entro 10 km</option>
+      <option value="25" selected>Entro 25 km</option>
+      <option value="50">Entro 50 km</option>
+      <option value="100">Entro 100 km</option>
+    </select>
   </div>
-  <div class="section-head"><h2>Luoghi</h2><span class="count" id="resultCount"></span></div>
+  <div class="section-head"><h2>Luoghi in Lombardia</h2><span class="count" id="resultCount"></span></div>
+  <div class="notice" style="margin-bottom:14px">Le gratuità indicate come <b>Gratis</b> sono riferite alle informazioni disponibili nel database. Prima della visita controlla sempre il sito ufficiale, perché tariffe e modalità possono cambiare.</div>
   <div id="onlineSearchBox" class="notice hidden" style="margin-bottom:14px"></div><div id="results"></div>
 </section>
 
@@ -169,22 +178,31 @@ function dist(a,b,c,d){
   return 2*R*Math.asin(Math.sqrt(h));
 }
 function iconFor(type){
-  if(type.includes('statale'))return '🏛️';
-  if(type.includes('civico'))return '🖼️';
-  if(type.includes('culto'))return '⛪';
+  const t=type.toLowerCase();
+  if(t.includes('museo')||t.includes('archeologico'))return '🏛️';
+  if(t.includes('castello')||t.includes('palazzo')||t.includes('villa'))return '🏰';
+  if(t.includes('parco')||t.includes('riserva')||t.includes('giardino'))return '🌳';
+  if(t.includes('cascata')||t.includes('natura'))return '🌊';
+  if(t.includes('lago')||t.includes('passeggiata'))return '🚶';
+  if(t.includes('culto')||t.includes('religioso'))return '⛪';
+  if(t.includes('borgo')||t.includes('centro storico'))return '🏘️';
+  if(t.includes('montagna'))return '⛰️';
   return '📍';
 }
 function appleMaps(p){return `https://maps.apple.com/?q=${encodeURIComponent(p.name+' '+p.city)}&ll=${p.lat},${p.lon}`}
 function googleMaps(p){return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`}
 function toast(msg){const t=byId('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)}
 function fillFilters(){
-  const regions=['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino-Alto Adige','Umbria',"Valle d'Aosta",'Veneto'];
-  regions.forEach(x=>region.innerHTML+=`<option>${x}</option>`);
+  [...new Set(PLACES.map(x=>x.province))].sort().forEach(x=>province.innerHTML+=`<option>${x}</option>`);
   [...new Set(PLACES.map(x=>x.type))].sort().forEach(x=>type.innerHTML+=`<option>${x}</option>`);
 }
 function getList(){
-  const term=q.value.toLowerCase().trim(),r=region.value,c=type.value;
-  let list=PLACES.filter(p=>(!term||[p.name,p.city,p.region,p.type].join(' ').toLowerCase().includes(term))&&(!r||p.region===r)&&(!c||p.type===c));
+  const term=q.value.toLowerCase().trim(),p=province.value,c=type.value;
+  let list=PLACES.filter(x=>
+    (!term||[x.name,x.city,x.province,x.region,x.type].join(' ').toLowerCase().includes(term)) &&
+    (!p||x.province===p) &&
+    (!c||x.type===c)
+  );
   if(pos)list.sort((a,b)=>dist(pos.lat,pos.lon,a.lat,a.lon)-dist(pos.lat,pos.lon,b.lat,b.lon));
   return list;
 }
@@ -323,24 +341,27 @@ function renderMap(){
 async function nearMe(){
   if(!navigator.geolocation){alert('Geolocalizzazione non disponibile.');return;}
   const box=byId('onlineSearchBox');
+  const km=Number(radius.value||25);
   box.classList.remove('hidden');
-  box.innerHTML='📍 Sto cercando luoghi interessanti entro 25 km dalla tua posizione…';
+  box.innerHTML=`📍 Sto cercando luoghi interessanti entro ${km} km dalla tua posizione…`;
   navigator.geolocation.getCurrentPosition(async x=>{
     pos={lat:x.coords.latitude,lon:x.coords.longitude};
     try{
-      const live=await searchAroundCoordinates(pos.lat,pos.lon,25000,'Vicino a te');
-      const local=PLACES.filter(p=>dist(pos.lat,pos.lon,p.lat,p.lon)<=25);
+      const km=Number(radius.value||25);
+      let live=[];
+      try{ live=await searchAroundCoordinates(pos.lat,pos.lon,km*1000,'Vicino a te'); }catch(_){}
+      const local=PLACES.filter(p=>dist(pos.lat,pos.lon,p.lat,p.lon)<=km);
       const merged=[...local,...live].filter((p,i,a)=>a.findIndex(x=>x.name===p.name)===i);
       merged.sort((a,b)=>dist(pos.lat,pos.lon,a.lat,a.lon)-dist(pos.lat,pos.lon,b.lat,b.lon));
       onlineResults=merged;
       q.value='';
-      region.value='';
+      province.value='';
       type.value='';
-      byId('resultCount').textContent=`${merged.length} luoghi entro 25 km`;
+      byId('resultCount').textContent=`${merged.length} luoghi entro ${km} km`;
       box.innerHTML=merged.length
         ?'📍 Risultati ordinati dal più vicino. I luoghi trovati online sono indicati come “Da verificare”.'
         :'Non ho trovato luoghi classificati nelle vicinanze.';
-      results.innerHTML=merged.length?merged.map((p,i)=>item(p,2000+i)).join(''):'<div class="empty">Nessun luogo trovato entro 25 km.</div>';
+      results.innerHTML=merged.length?merged.map((p,i)=>item(p,2000+i)).join(''):'<div class="empty">Nessun luogo trovato nel raggio scelto.</div>';
       toast('Ricerca vicino a te completata');
     }catch(e){
       box.innerHTML='Non riesco a cercare i luoghi vicini in questo momento. Riprova tra poco.';

@@ -1,5 +1,5 @@
 {
-  "name": "Accesso Libero",
+  "name": "Accesso Libero – Lombardia",
   "short_name": "Accesso Libero",
   "start_url": "./",
   "display": "standalone",
@@ -13,5 +13,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "Trova musei, luoghi storici, parchi e attrazioni vicino a te e in tutta Italia."
+  "description": "Scopri luoghi, gite e agevolazioni per persone con disabilità in Lombardia."
 }

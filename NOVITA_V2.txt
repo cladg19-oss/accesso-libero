@@ -1,0 +1,11 @@
+ACCESSO LIBERO – VERSIONE LOMBARDIA 2.0
+
+- 74 luoghi lombardi inclusi.
+- Ricerca per luogo, comune, provincia e categoria.
+- Filtro per provincia.
+- Raggio Vicino a me: 10, 25, 50 o 100 km.
+- Ordinamento per distanza tramite GPS.
+- Cache aggiornata per ricevere subito la nuova versione.
+- Orrido di Bellano, Merate, Calusco d'Adda, Lecco, Bergamo, Como, Milano e tutte le province lombarde.
+
+Nota: controllare sempre il sito ufficiale prima della visita.
