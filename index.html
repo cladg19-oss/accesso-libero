@@ -138,7 +138,13 @@ nav button.active{color:var(--brand);font-weight:750}
   <div class="card"><div class="card-body"><h3>🪪 Disability Card</h3><p class="text">Serve a dimostrare più facilmente la condizione di disabilità presso enti e strutture aderenti, evitando di portare ogni volta il verbale completo.</p></div></div>
   <div class="notice">Le condizioni possono cambiare. Prima della visita apri sempre il sito ufficiale del luogo.</div>
 </section>
-
+<section id="visited" class="hidden">
+  <div class="section-head">
+    <h2>✅ Visitati</h2>
+    <span class="count" id="visitedCount"></span>
+  </div>
+  <div id="visitedResults"></div>
+</section>
 <section id="saved" class="hidden">
   <div class="section-head"><h2>Preferiti</h2><span class="count" id="favCount"></span></div>
   <div id="savedResults"></div>
@@ -160,6 +166,7 @@ nav button.active{color:var(--brand);font-weight:750}
   <button id="tab-map" onclick="showTab('map')">🗺️<br>Mappa</button>
   <button id="tab-rights" onclick="showTab('rights')">✅<br>Diritti</button>
   <button id="tab-saved" onclick="showTab('saved')">❤️<br>Preferiti</button>
+  <button id="tab-visited" onclick="showTab('visited')">✅<br>Visitati</button>
   <button id="tab-profile" onclick="showTab('profile')">👤<br>Profilo</button>
 </div></nav>
 </div>
@@ -286,6 +293,24 @@ function sharePlace(name){
   else navigator.clipboard.writeText(`${text} ${p.site}`).then(()=>toast('Link copiato'));
 }
 function toggleDetails(id){byId(id).classList.toggle('open')}
+let visited = JSON.parse(localStorage.getItem('visited') || '[]');
+
+function toggleVisited(name){
+  visited = visited.includes(name)
+    ? visited.filter(x => x !== name)
+    : [...visited, name];
+
+  localStorage.setItem('visited', JSON.stringify(visited));
+  render();
+  renderSaved();
+  renderVisited();
+
+  toast(
+    visited.includes(name)
+      ? 'Segnato come visitato'
+      : 'Rimosso dai visitati'
+  );
+}
 function item(p,i){
   const d=pos?` · ${dist(pos.lat,pos.lon,p.lat,p.lon).toFixed(1)} km`:'';
   const saved=favs.includes(p.name);
@@ -300,6 +325,7 @@ function item(p,i){
         <button onclick="window.open('${appleMaps(p)}','_blank')">Apple Maps</button>
         <button onclick="window.open('${googleMaps(p)}','_blank')">Google Maps</button>
         <button onclick="toggleFav('${p.name.replaceAll("'","\\'")}')">${saved?'❤️ Salvato':'🤍 Salva'}</button>
+        <button onclick="toggleVisited('${p.name.replaceAll("'","\\'")}')">${visited.includes(p.name)?'✅ Visitato':'☑️ Segna visitato'}</button>
         <button onclick="sharePlace('${p.name.replaceAll("'","\\'")}')">Condividi</button>
         <button onclick="toggleDetails('d-${i}')">Dettagli</button>
       </div>
@@ -381,10 +407,18 @@ function renderSaved(){
   favCount.textContent=`${list.length} salvati`;
   savedResults.innerHTML=list.length?list.map((p,i)=>item(p,i)).join(''):'<div class="empty">Non hai ancora salvato luoghi.</div>';
 }
+function renderVisited(){
+  const list = PLACES.filter(p => visited.includes(p.name));
+  byId('visitedCount').textContent = `${list.length} visitati`;
+  byId('visitedResults').innerHTML = list.length
+    ? list.map((p,i) => item(p,i)).join('')
+    : '<div class="empty">Non hai ancora segnato luoghi visitati.</div>';
+}
 function showTab(id){
-  ['home','map','rights','saved','profile'].forEach(x=>byId(x).classList.toggle('hidden',x!==id));
-  ['home','map','rights','saved','profile'].forEach(x=>byId('tab-'+x).classList.toggle('active',x===id));
+  ['home','map','rights','saved','visited','profile'].forEach(x=>byId(x).classList.toggle('hidden',x!==id));
+  ['home','map','rights','saved','visited','profile'].forEach(x=>byId('tab-'+x).classList.toggle('active',x===id));
   if(id==='saved')renderSaved();
+  if(id==='visited')renderVisited();
   if(id==='map')renderMap();
   window.scrollTo({top:0,behavior:'smooth'});
 }
